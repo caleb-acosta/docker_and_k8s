@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-service
+spec:
+  selector:
+    app: academy-caleb-db
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: academy-caleb-db
+  template:
+    metadata:
+      labels:
+        app: academy-caleb-db
+    spec:
+      containers:
+        - name: db
+          image: mongo:latest
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: 'mongoacademy'
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: 'X24z6rFC'
+            - name: MONGO_INITDB_DATABASE
+              value: 'users'
+          volumeMounts:
+            - name: academy-caleb-efs-vol
+              mountPath: /data/db
+      volumes:
+        - name: academy-caleb-efs-vol
+          persistentVolumeClaim: 
+            claimName: academy-caleb-efs-pvc
